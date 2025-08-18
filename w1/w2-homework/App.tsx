@@ -1,50 +1,39 @@
-import React, { useState } from 'react';
-import { SafeAreaView, StyleSheet, TextInput, FlatList, Image, View, Dimensions } from 'react-native';
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Dimensions, StyleSheet } from 'react-native';
+import GalleryScreen from './screens/GalleryScreen';
+import PhotoDetailScreen from './screens/PhotoDetailScreen';
+import FullScreenModal from './screens/FullScreenModal';
+import { RootStackParamList } from './types/navigation';
 
 const numColumns = 3;
 const size = Dimensions.get('window').width / numColumns;
 
-const imageURL: string[] = [];
-for (let i = 1; i <= 50; i++) {
-  imageURL.push(`https://picsum.photos/200/300?random=${i}`);
-}
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
-
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filteredImages, setFilteredImages] = useState(imageURL);
-
-  const handleSearch = (text: string) => {
-    setSearchQuery(text);
-    if (text) {
-      const filtered = imageURL.filter((url) =>
-        url.toLowerCase().includes(text.toLowerCase())
-      );
-      setFilteredImages(filtered);
-    } else {
-      setFilteredImages(imageURL);
-    }
-  }
-
-  const renderItem = ({ item }: { item: string }) => (
-    <Image source={{ uri: item }} style={{ width: size, height: size }} />
-  );
-
   return (
-    <SafeAreaView style={styles.container}>
-      <TextInput
-        placeholder="Search"
-        value={searchQuery}
-        onChangeText={handleSearch}
-        style={{ width: '100%', padding: 12, color: '#fff', borderWidth: 1, borderColor: '#ccc', borderRadius: 4 }}
-      />
-      <FlatList
-        data={filteredImages}
-        renderItem={renderItem}
-        keyExtractor={(item) => item}
-        numColumns={numColumns}
-      />
-    </SafeAreaView>
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Gallery" component={GalleryScreen} />
+        <Stack.Screen 
+          name="PhotoDetail" 
+          component={PhotoDetailScreen} 
+          options={({ route }: { route: { params: { photoUrl: string } } }) => ({ title: route.params.photoUrl })}
+        />
+        <Stack.Screen 
+          name="FullScreenModal" 
+          component={FullScreenModal} 
+          options={{ 
+            presentation: 'modal',
+            headerStyle: { backgroundColor: '#121212' },
+            headerTintColor: '#fff',
+            headerTitleStyle: { fontWeight: 'bold' },
+          }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
