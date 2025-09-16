@@ -2,14 +2,14 @@ export type Track = {
   trackId: number;
   trackName: string;
   artistName: string;
-  previewUrl: string | null;
-  artworkUrl100: string;
+  artworkUrl100?: string;
   collectionName?: string;
   primaryGenreName?: string;
+  previewUrl?: string;
 };
 
 export type Playlist = {
-  id: string;
+  id: string;       // string so it’s easy to use Date.now().toString() in persistence
   name: string;
   tracks: Track[];
 };
@@ -17,7 +17,7 @@ export type Playlist = {
 export type SearchStackParams = {
   Search: undefined;
   Results: { q: string };
-  TrackDetails: { trackId: number; from?: 'results' | 'favorites' | 'playlist' };
+  TrackDetails: { trackId: number; from: 'results' | 'favorites' | 'playlist' };
   MiniPlayerModal: undefined;
 };
 
@@ -25,6 +25,6 @@ export type LibraryStackParams = {
   Favorites: undefined;
   Playlists: undefined;
   PlaylistDetails: { playlistId: number };
-  CreatePlaylistModal: { initialTrack?: Track };
-  TrackDetails: { trackId: number; from: string }; 
+  TrackDetails: { trackId: number; from: 'results' | 'favorites' | 'playlist' };
+  CreatePlaylistModal: { initialTrack?: Track } | undefined;
 };
