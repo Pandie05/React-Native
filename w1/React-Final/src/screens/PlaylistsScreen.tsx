@@ -1,37 +1,63 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View, useColorScheme } from 'react-native';
-import { LibraryStackParams, Playlist } from '@/types/navigation';
+import { FlatList, StyleSheet, Text, View, Alert, Pressable, useColorScheme } from 'react-native';
+import { LibraryStackParams, Playlist } from '../types/navigation'; 
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { loadPlaylists } from '@/storage/persistence';
-import { theme } from '@/theme';
+import { loadPlaylists, savePlaylists } from '../storage/persistence'; 
+import { theme } from '../theme'; 
 
 type Props = NativeStackScreenProps<LibraryStackParams, 'Playlists'>;
 export function PlaylistsScreen({ navigation }: Props) {
-  const [lists, setLists] = useState<Playlist[]>([]);
+  const [playlists, setPlaylists] = useState<Record<number, Playlist>>({});
   const scheme = useColorScheme();
   const t = scheme === 'dark' ? theme.dark : theme.light;
 
   useEffect(() => {
-    const unsub = navigation.addListener('focus', async () => {
-      setLists(await loadPlaylists());
-    });
-    return unsub;
-  }, [navigation]);
+    (async () => {
+      const arr = await loadPlaylists(); // arr: Playlist[]
+      const obj = Object.fromEntries(arr.map(p => [p.id, p]));
+      setPlaylists(obj);
+    })();
+  }, []);
+
+  function remove(playlistId: number) {
+    Alert.alert('Remove playlist?', 'This will delete the playlist.', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Remove', style: 'destructive', onPress: async () => {
+        const next = { ...playlists };
+        delete next[playlistId];
+        await savePlaylists(Object.values(next)); 
+        setPlaylists(next);
+      }}
+    ]);
+  }
+
+  const items = Object.values(playlists);
+
+  if (!items.length) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.muted}>No playlists yet.</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: t.bg }}>
       <FlatList
-        data={lists}
-        keyExtractor={(it) => it.id}
+        data={items}
+        keyExtractor={(it) => String(it.id)}
         renderItem={({ item }) => (
-          <Pressable style={[styles.row, { borderBottomColor: t.border }]} onPress={() => navigation.navigate('PlaylistDetails', { playlistId: Number(item.id) })}>
-            <Text style={[styles.title, { color: t.text }]}>{item.name}</Text>
-            <Text style={{ color: t.muted }}>{item.tracks.length} tracks</Text>
-          </Pressable>
+          <View style={styles.row}>
+            <Pressable onPress={() => navigation.navigate('PlaylistDetails', { playlistId: Number(item.id) })}>
+              <Text style={[styles.title, { color: t.text }]}>{item.name}</Text>
+            </Pressable>
+            <Pressable onPress={() => remove(Number(item.id))}>
+              <Text style={styles.remove}>Remove</Text>
+            </Pressable>
+          </View>
         )}
-        ListEmptyComponent={<View style={styles.center}><Text style={{ color: t.muted }}>No playlists yet.</Text></View>}
       />
-      <Pressable style={styles.fab} onPress={() => navigation.navigate({ name: 'CreatePlaylistModal', params: {} }) }>
+      <Pressable style={styles.fab} onPress={() => navigation.navigate('CreatePlaylistModal', {})}>
         <Text style={styles.fabText}>+ New</Text>
       </Pressable>
     </View>
@@ -39,9 +65,11 @@ export function PlaylistsScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  row: { padding: theme.shared.spacing(2), borderBottomWidth: 1 },
-  title: { fontWeight: '800', fontSize: 16, marginBottom: 2 },
-  center: { alignItems: 'center', padding: theme.shared.spacing(2) },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  muted: { color: '#888' }, 
+  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16 },
+  title: { fontWeight: '700', fontSize: 16 },
+  remove: { color: theme.shared.danger, fontWeight: '700' },
   fab: {
     position: 'absolute',
     right: 16,

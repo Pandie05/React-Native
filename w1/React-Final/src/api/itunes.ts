@@ -21,7 +21,7 @@ export async function searchTracks(term: string, limit = 25, offset = 0): Promis
       trackId: t.trackId,
       trackName: t.trackName,
       artistName: t.artistName,
-      previewUrl: t.previewUrl ?? null,
+      previewUrl: t.previewUrl ?? undefined,
       artworkUrl100: t.artworkUrl100 ?? '',
       collectionName: t.collectionName,
       primaryGenreName: t.primaryGenreName

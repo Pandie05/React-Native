@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, View, Alert, Pressable, useColorScheme } from 'react-native';
+import { FlatList, StyleSheet, Text, View, Alert, Pressable, useColorScheme, Button } from 'react-native';
 import { Track } from '@/types/navigation';
 import { loadFavorites, saveFavorites } from '@/storage/persistence';
 import { TrackRow } from '@/components/TrackRow';
@@ -31,18 +31,21 @@ export function FavoritesScreen({ navigation }: any) {
   }
 
   return (
-    <FlatList
-      style={{ backgroundColor: t.bg }}
-      data={items}
-      keyExtractor={(it) => String(it.trackId)}
-      renderItem={({ item }) => (
-        <TrackRow
-          track={item}
-          onPress={() => navigation.navigate('TrackDetails', { trackId: item.trackId, from: 'favorites' })}
-          right={<Pressable onPress={() => remove(item.trackId)}><Text style={styles.remove}>Remove</Text></Pressable>}
-        />
-      )}
-    />
+    <View style={{ flex: 1 }}>
+      <Button title="Go to Playlists" onPress={() => navigation.navigate('Playlists')} />
+      <FlatList
+        style={{ backgroundColor: t.bg }}
+        data={items}
+        keyExtractor={(it) => String(it.trackId)}
+        renderItem={({ item }) => (
+          <TrackRow
+            track={item}
+            onPress={() => navigation.navigate('TrackDetails', { trackId: item.trackId, from: 'favorites' })}
+            right={<Pressable onPress={() => remove(item.trackId)}><Text style={styles.remove}>Remove</Text></Pressable>}
+          />
+        )}
+      />
+    </View>
   );
 }
 

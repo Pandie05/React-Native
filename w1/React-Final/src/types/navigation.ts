@@ -9,7 +9,7 @@ export type Track = {
 };
 
 export type Playlist = {
-  id: string;       // string so it’s easy to use Date.now().toString() in persistence
+  id: string;       
   name: string;
   tracks: Track[];
 };

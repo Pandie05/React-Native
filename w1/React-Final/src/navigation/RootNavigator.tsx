@@ -43,21 +43,12 @@ function SearchStackNavigator() {
 
 function LibraryStackNavigator() {
   return (
-    <LibraryStack.Navigator>
+    <LibraryStack.Navigator initialRouteName="Favorites">
       <LibraryStack.Screen name="Favorites" component={FavoritesScreen} options={{ title: 'Favorites' }} />
       <LibraryStack.Screen name="Playlists" component={PlaylistsScreen} options={{ title: 'Playlists' }} />
       <LibraryStack.Screen name="PlaylistDetails" component={PlaylistDetailsScreen} options={{ title: 'Playlist' }} />
-      {/* 👇 Add TrackDetails here so Favorites/Playlists can navigate to it */}
-      <LibraryStack.Screen
-        name="TrackDetails"
-        component={TrackDetailsScreen}
-        options={{ headerTransparent: true, title: '' }}
-      />
-      <LibraryStack.Screen
-        name="CreatePlaylistModal"
-        component={CreatePlaylistModal}
-        options={{ presentation: 'modal', title: 'New Playlist' }}
-      />
+      <LibraryStack.Screen name="TrackDetails" component={TrackDetailsScreen} options={{ headerTransparent: true, title: '' }} />
+      <LibraryStack.Screen name="CreatePlaylistModal" component={CreatePlaylistModal} options={{ presentation: 'modal', title: 'New Playlist' }} />
     </LibraryStack.Navigator>
   );
 }
@@ -67,6 +58,7 @@ export function RootNavigator() {
     <Tab.Navigator screenOptions={{ headerShown: false }}>
       <Tab.Screen name="SearchTab" component={SearchStackNavigator} options={{ tabBarLabel: 'Search' }} />
       <Tab.Screen name="LibraryTab" component={LibraryStackNavigator} options={{ tabBarLabel: 'Library' }} />
+      
     </Tab.Navigator>
   );
 }
